@@ -48,5 +48,5 @@ if __name__ == '__main__':
         stream=file_result, title=u'测试报告', description=u'测试情况')
     runner.run(test)
     file_result.close()
-    # test = TestCaseInstall()
-    # test.test_install()
+    test = TestCaseInstall()
+    test.test_install()
