@@ -1,0 +1,69 @@
+// COS测试自动化脚本示例
+// XTest选择PC/SC通道
+// 步骤：
+// 1) 获取默认按键状态（仅运行一次）
+// 2) 自动按键。输入默认按键状态，按键类型，按键按下时长，即可实现自动按键
+// 参数说明：
+// 按键类型，与自动按键设备有关，一旦确定，可以不用更改。一般定义为默认按键状态的相应bit，4个按键为bit1~bit4
+// 按键按下时长，可以自定义配置，单位毫秒(ms)
+// 80DA 0000 08 0000000000000000
+//      P2含义
+// 		00	返回按键信息
+// 		01	辅助设备按照 按键值设置
+// 按键指令DATA域：%延时时间(ms为单位)% %按键值%  (4字节||4字节)
+
+// 封装函数
+// 获得默认按键状态
+function fun_EsAutoPressGetKeyDefaultState()
+
+    80DA 0000 08 0000000000000000
+    // assert:SW1SW2=9000
+    if ( 9000 == %SW1SW2% )
+        SAVE(funRet)            %RESPONSE%
+    else
+        SAVE(funRet)            string(ERROR)
+    endif
+
+endfunction
+
+
+// 自动按键
+function fun_EsAutoPressKey(u4KeyDefaultState, u4KeyType, u4DelayCount)
+
+    // 按键按下
+    SAVE(u4KeyValue)     %u4KeyDefaultState%的相应位取反     // 未完成
+    80DA 0001 08 00000040 %u4KeyValue%  // 稍微延时64ms
+    // assert:SW1SW2=9000
+    if ( 9000 == %SW1SW2% )
+        SAVE(funRet)            01
+    else
+        SAVE(funRet)            string(ERROR)
+    endif
+    // 按键弹起
+    80DA 0001 08 %u4DelayCount% %u4KeyDefaultState%
+    // assert:SW1SW2=9000
+    if ( 9000 == %SW1SW2% )
+        SAVE(funRet)            01
+    else
+        SAVE(funRet)            string(ERROR)
+    endif
+
+endfunction
+
+// 说明：自动按键设备已连接，Key开机
+// 调用示例
+// 配置参数
+SAVE(KEY_TYPE_BIT_CANCEL)           04
+SAVE(KEY_TYPE_BIT_ENTER)            03
+SAVE(KEY_TYPE_BIT_PAGEDOWN)         01
+SAVE(KEY_TYPE_BIT_PAGEUP)           02
+SAVE(u4KeyDefaultState)             fun_EsAutoPressGetKeyDefaultState()     // 仅初始化时调用一次
+
+// 正式调用
+// 运行初始化脚本，或其他需要按键脚本
+SAVE(u4DelayCount)                  50
+SAVE(u4DelayCount)                  ADD(00000000; %u4DelayCount%)
+SAVE(u4Result)                      fun_EsAutoPressKey(%u4KeyDefaultState%, %KEY_TYPE_BIT_CANCEL%, %u4DelayCount%)
+assertvar %ERROR% != %u4Result%
+
+

@@ -1,0 +1,52 @@
+﻿typedef DWORD (STDAPICALLTYPE *funGetCListCtrl)(IN HWND hwnd,IN OUT int *ColumnCount,IN OUT int *RowCount,IN OUT char *Output,IN OUT size_t *OutputLen);
+typedef DWORD (STDAPICALLTYPE *funGetCTreeCtrl)(IN HWND hwnd,IN OUT int *Count, IN OUT char *Output,IN OUT size_t *OutputLen);
+
+#define IDC_LIST_CHECK_REPORT   1053
+#define IDC_TREE_DEV            1016
+
+void CGetCtrlTextTest()
+{
+    HWND hParentWnd =::FindWindow(NULL, L"中行网银USBKey数字安全证书管理工具-文鼎创"); 
+    HWND hChildWnd =::FindWindow(NULL, L"USBKey状态检测"); 
+    HWND hList = ::GetDlgItem(hChildWnd, IDC_LIST_CHECK_REPORT);
+    HWND hTree = ::FindWindowEx(hParentWnd, NULL, _T("SysTreeView32"), _T(""));
+    DWORD lasterr;
+    HMODULE hMod = LoadLibrary(L"GetCtrlText.dll");
+    if (NULL != hMod)
+    {
+
+        funGetCListCtrl GetCListCtrl;
+        GetCListCtrl = (funGetCListCtrl)GetProcAddress(hMod, "GetCListCtrl");
+        if (GetCListCtrl)
+        {
+            int ColumnCount;
+            int RowCount;
+            char Output[1024] = {0};
+            size_t OutputLen = sizeof(Output); 
+            //获取有几行几列，hList是列表框的句柄，ColumnCount是列，RowCount是行。
+            lasterr = GetCListCtrl(hList, &ColumnCount, &RowCount, NULL, 0);
+            ColumnCount = 0;
+            RowCount = 1;
+            //获取第2行1列的内容，hList是列表框的句柄，ColumnCount是列，RowCount是行。Output是输出的文本内容，OutputLen是输出文本的长度。
+            lasterr = GetCListCtrl(hList,&ColumnCount, &RowCount, Output, &OutputLen);
+        }
+    }
+    if (NULL != hMod)
+    {
+
+        funGetCTreeCtrl GetCTreeCtrl;
+        GetCTreeCtrl = (funGetCTreeCtrl)GetProcAddress(hMod, "GetCTreeCtrl");
+        if (GetCTreeCtrl)
+        {
+            int Count;
+            char Output[1024] = {0};
+            size_t OutputLen = sizeof(Output); 
+            //获取有几行几列，hTree是树状控件的句柄，Count是一共有几个节点。
+            lasterr = GetCTreeCtrl(hTree, &Count, NULL, 0);
+            Count = 1;
+            //获取第2个节点的内容，hTree是树状控件的句柄，Output是输出的文本内容，OutputLen是输出文本的长度。
+            lasterr = GetCTreeCtrl(hTree, &Count, Output, &OutputLen);
+        }
+    }
+
+}
