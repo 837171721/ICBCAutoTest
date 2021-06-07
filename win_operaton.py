@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 '''
 Created on 2021.6.1
 
@@ -61,8 +61,6 @@ class EsWinOperation:
         self.hwnd.SetTopmost(True)
         # return self.hwnd
 
-
-
     def es_win_btnclick(self, button_name):
         '''
         点击窗口按钮
@@ -121,7 +119,7 @@ class EsWinOperation:
         :param autionmationid:编辑框的AutomationId
         :return 编辑框内容
         '''
-        text_element=auto.TextControl(AutomationId=automationid)
+        text_element = auto.TextControl(AutomationId=automationid)
         return text_element.Name
 
     def es_win_checkbox_select(self, automationid):
@@ -131,6 +129,14 @@ class EsWinOperation:
         return ： 无
         '''
         self.hwnd.CheckBoxControl(AutomationId=automationid).Click()
+
+    def es_win_get_static(self, automationid):
+        '''
+        获取静态框文本内容
+        :param 
+        '''
+        text_value = auto.TextControl(AutionmationId=automationid)
+        return text_value.Name
 
 
 def es_win_check_all():
@@ -171,17 +177,32 @@ def es_win_get_filelist(dir):
     return file_list
 
 
-def es_win_file_exits(file_list, dir_path):
+def es_win_file_exits(dir_path,file_list):
     '''
     查找某文件是否存在(可以传入多个文件)
-    :param file_list:文件列表
     :param dir_path 路径
+    :param file_list:文件列表
+    :return : 全部存在，返回True，否则返回False
     '''
     for files in file_list:
-        result = False
-        path = dir_path+str(files)
-        if os.path.exists:
-            result = True
+        result = True
+        path = dir_path + '\\' + str(files)
+        if False == os.path.exists(path):
+            result = False
+    return result
+
+def es_win_file_notexits(dir_path,file_list):
+    '''
+    查找某文件是否不存在(可以传入多个文件)
+    :param dir_path 路径
+    :param file_list:文件列表
+    :return ：文件全部不存在，返回True，否则返回False
+    '''
+    for files in file_list:
+        result = True
+        path = dir_path + '\\' + str(files)
+        if os.path.exists(path):
+            result = False
     return result
 
 
